@@ -160,4 +160,42 @@ public class UserServiceUnitTest {
     }
 
     //TODO : changePassword, new password is not same with old password
+
+    @ParameterizedTest
+    @CsvSource({"123456789,98765432221,987654321",
+            "12a1sd3a1sda,a5s4d8asd89a4sd8,a5s4d8asd89a4sd1",
+            "asdfgh,qwertyu,qwert1yu"})
+    public void changePassword_newPassAndNewPassAgainAreNotSame(ArgumentsAccessor argumentsAccessor) {
+        //given
+        String oldPassword = argumentsAccessor.getString(0);
+        String newPassword = argumentsAccessor.getString(1);
+        String newPasswordAgain = argumentsAccessor.getString(2);
+        User user = User.builder()
+                .id(1L)
+                .firstName("testName")
+                .lastName("testLastName")
+                .email("testMail@test.com")
+                .password(oldPassword)
+                .build();
+
+        ChangePassDto changePassDto = ChangePassDto.builder()
+                .id(1L)
+                .password(oldPassword)
+                .newPass(newPassword)
+                .newPassAgain(newPasswordAgain)
+                .build();
+
+        //when
+        Mockito.when(userRepository.findById(Mockito.any(Long.class))).thenReturn(Optional.ofNullable(user));
+        String returnMessage = userService.changePassword(changePassDto);
+
+        //then
+        Mockito.verify(userRepository).findById(longArgumentCaptor.capture());
+        Mockito.verifyNoMoreInteractions(userRepository);
+
+        Assertions.assertAll(
+                ()-> Assertions.assertEquals("Passwords are not same.", returnMessage),
+                () -> Assertions.assertEquals(longArgumentCaptor.getValue(), changePassDto.getId())
+        );
+    }
 }
