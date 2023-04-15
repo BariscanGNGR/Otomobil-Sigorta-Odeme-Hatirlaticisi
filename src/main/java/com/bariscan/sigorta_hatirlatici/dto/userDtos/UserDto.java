@@ -1,4 +1,4 @@
-package com.bariscan.sigorta_hatirlatici.dto;
+package com.bariscan.sigorta_hatirlatici.dto.userDtos;
 
 import lombok.*;
 
